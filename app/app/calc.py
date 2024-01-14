@@ -8,4 +8,4 @@ def add(n1, n2):
 
 
 def subtract(n1, n2):
-    return n2 - n1
+    return n1 - n2
