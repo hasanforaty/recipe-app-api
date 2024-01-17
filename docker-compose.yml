@@ -31,3 +31,4 @@ services:
       - POSTGRES_PASSWORD=changeme
 volumes:
   dev-db-data:
+    external: true

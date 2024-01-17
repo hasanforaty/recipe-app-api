@@ -7,6 +7,8 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin)
 
+from app import settings
+
 
 class UserManage(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -36,3 +38,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManage()
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+
+class Recipe(models.Model):
+    """Recipe Model"""
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    time_minutes = models.IntegerField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    link = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return self.title
