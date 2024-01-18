@@ -52,10 +52,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         """Create a new recipe instance"""
         tags = validated_data.pop('tags', [])
         ingredients = validated_data.pop('ingredients', [])
-        recipe = Recipe.objects.create(**validated_data)
+
         auth_user = self.context['request'].user
+        # add user to Recipe
+        recipe = Recipe.objects.create(**validated_data, user=auth_user)
         self._get_or_create_tags(tags, recipe, auth_user=auth_user)
         self._get_or_create_ingredients(ingredients, recipe, auth_user=auth_user)
+
         return recipe
 
     def update(self, instance, validated_data):
