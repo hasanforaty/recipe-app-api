@@ -4,11 +4,12 @@ View for recipe API
 from rest_framework import viewsets
 from rest_framework.renderers import JSONRenderer
 
-from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
-from core.models import Recipe
+from recipe.serializers import RecipeSerializer, RecipeDetailSerializer, TagSerializer
+from core.models import Recipe, Tag
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.settings import api_settings
+
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -34,3 +35,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Create a new recipe """
         serializer.save(user=self.request.user)
 
+
+class TagViewSet(viewsets.ModelViewSet):
+    """View to manage Tag API"""
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        """Retrieve recipes for authenticated user """
+        return self.queryset.filter(user=self.request.user)
