@@ -10,6 +10,14 @@ import random
 INGREDIENT_URL = reverse('recipe:ingredient-list')
 
 
+def detail_url(ingredient_id):
+    """Return ingredient detail id"""
+    return reverse(
+        'recipe:ingredient-detail',
+        args=[ingredient_id]
+    )
+
+
 def create_ingredient(user, **argument):
     payload = {'name': f'Test Ingredient_{random.randint(0, 100)}'}
     payload.update(argument)
@@ -66,3 +74,19 @@ class PrivateIngredientApiTests(TestCase):
                 other_user_ingredient.name,
                 ingredient['name']
             )
+
+    def test_update_ingredient_successful(self):
+        """Test updating an ingredient"""
+        payload = {'name': 'Bannnana'}
+        ingredient = create_ingredient(user=self.user, **payload)
+        fixed = {'name': 'banana'}
+        res = self.client.patch(detail_url(ingredient.id), fixed, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['name'], fixed['name'])
+
+    def test_delete_ingredient(self):
+        """Test deleting an ingredient"""
+        ingredient = create_ingredient(user=self.user, name='Bannana')
+        res = self.client.delete(detail_url(ingredient.id))
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Ingredient.objects.all().count(), 0)
