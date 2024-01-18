@@ -80,7 +80,11 @@ class PrivateIngredientApiTests(TestCase):
         payload = {'name': 'Bannnana'}
         ingredient = create_ingredient(user=self.user, **payload)
         fixed = {'name': 'banana'}
-        res = self.client.patch(detail_url(ingredient.id), fixed, format='json')
+        res = self.client.patch(
+            detail_url(ingredient.id),
+            fixed,
+            format='json'
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['name'], fixed['name'])
 
