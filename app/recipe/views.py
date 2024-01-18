@@ -53,36 +53,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
 #     def perform_create(self, serializer):
 #         """Create a new Tag for current User"""
 #         serializer.save(user=self.request.user)
-class TagViewSet(mixins.ListModelMixin,
-                 mixins.UpdateModelMixin,
-                 mixins.DestroyModelMixin,
-                 viewsets.GenericViewSet
-                 ):
+class BaseRecipeAttrViewSet(mixins.ListModelMixin,
+                            mixins.UpdateModelMixin,
+                            mixins.DestroyModelMixin,
+                            viewsets.GenericViewSet
+                            ):
+    """Base viewset for recipe attributes"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+    def get_queryset(self):
+        """Retrieve recipes for authenticated user """
+        return self.queryset.filter(user=self.request.user).order_by('-name')
+
+    pass
+
+
+class TagViewSet(BaseRecipeAttrViewSet):
     """View to manage Tag API"""
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
-    def get_queryset(self):
-        """Retrieve recipes for authenticated user """
-        return self.queryset.filter(user=self.request.user).order_by('-name')
 
 
-class IngredientViewSet(
-    mixins.ListModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
+class IngredientViewSet(BaseRecipeAttrViewSet):
     """Manage Ingredient in the database"""
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
-    def get_queryset(self):
-        """Retrieve recipes for authenticated user """
-        return self.queryset.filter(user=self.request.user).order_by('-name')
