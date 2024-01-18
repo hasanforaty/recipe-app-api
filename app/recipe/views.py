@@ -35,7 +35,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class TagViewSet(viewsets.ModelViewSet):
+# class TagViewSet(viewsets.ModelViewSet):
+#     """View to manage Tag API"""
+#     serializer_class = TagSerializer
+#     queryset = Tag.objects.all()
+#     authentication_classes = (TokenAuthentication,)
+#     permission_classes = (IsAuthenticated,)
+#     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+#
+#     def get_queryset(self):
+#         """Retrieve recipes for authenticated user """
+#         return self.queryset.filter(user=self.request.user).order_by('-name')
+#
+#     def perform_create(self, serializer):
+#         """Create a new Tag for current User"""
+#         serializer.save(user=self.request.user)
+class TagViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     """View to manage Tag API"""
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
