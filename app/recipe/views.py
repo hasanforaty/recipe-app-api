@@ -81,4 +81,3 @@ class IngredientViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Retrieve recipes for authenticated user """
         return self.queryset.filter(user=self.request.user).order_by('-name')
-

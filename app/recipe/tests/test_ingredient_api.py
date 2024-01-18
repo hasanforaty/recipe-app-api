@@ -62,7 +62,7 @@ class PrivateIngredientApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         for ingredient in res.data:
-            self.assertNotEquals(other_user_ingredient.name, ingredient['name'])
-
-
-
+            self.assertNotEquals(
+                other_user_ingredient.name,
+                ingredient['name']
+            )
