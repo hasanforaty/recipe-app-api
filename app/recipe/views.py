@@ -1,14 +1,17 @@
 """
 View for recipe API
 """
-from rest_framework import viewsets
-from rest_framework.renderers import JSONRenderer
-
-from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
-from core.models import Recipe
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.settings import api_settings
+
+from core.models import Recipe, Tag
+from recipe.serializers import (
+    RecipeSerializer,
+    RecipeDetailSerializer,
+    TagSerializer
+)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -34,3 +37,34 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Create a new recipe """
         serializer.save(user=self.request.user)
 
+
+# class TagViewSet(viewsets.ModelViewSet):
+#     """View to manage Tag API"""
+#     serializer_class = TagSerializer
+#     queryset = Tag.objects.all()
+#     authentication_classes = (TokenAuthentication,)
+#     permission_classes = (IsAuthenticated,)
+#     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+#
+#     def get_queryset(self):
+#         """Retrieve recipes for authenticated user """
+#         return self.queryset.filter(user=self.request.user).order_by('-name')
+#
+#     def perform_create(self, serializer):
+#         """Create a new Tag for current User"""
+#         serializer.save(user=self.request.user)
+class TagViewSet(mixins.ListModelMixin,
+                 mixins.UpdateModelMixin,
+                 mixins.DestroyModelMixin,
+                 viewsets.GenericViewSet
+                 ):
+    """View to manage Tag API"""
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+    def get_queryset(self):
+        """Retrieve recipes for authenticated user """
+        return self.queryset.filter(user=self.request.user).order_by('-name')
