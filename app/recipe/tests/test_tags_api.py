@@ -62,7 +62,10 @@ class PrivateTagsApiTest(TestCase):
 
     def test_tags_limited_to_user(self):
         """Test retrieving tags for only the authenticated user"""
-        other_user = create_user(email='other@example.com ', password='password1')
+        other_user = create_user(
+            email='other@example.com ',
+            password='password1'
+        )
         create_tag(user=other_user, name='Blue')
         test_case = [
             create_tag(user=self.user, name='Red'),
@@ -88,15 +91,30 @@ class PrivateTagsApiTest(TestCase):
     #     payload = {'user': other_user}
     #     res = self.client.patch(tag_detail_url(tag.id), payload)
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertTrue(Tag.objects.filter(user=self.user, name=tag.name).exists())
-    #     self.assertFalse(Tag.objects.filter(user=other_user, name=tag.name).exists())
+    #     self.assertTrue(
+    #     Tag.objects.filter(
+    #       user=self.user,
+    #       name=tag.name
+    #       ).exists()
+    #     )
+    #     self.assertFalse(
+    #     Tag.objects.filter(
+    #       user=other_user,
+    #       name=tag.name
+    #       ).exists()
+    #     )
 
     def test_delete_tag(self):
         """Test deleting a Tag"""
         tag = create_tag(self.user, name='Red')
         res = self.client.delete(tag_detail_url(tag.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Tag.objects.filter(user=self.user, name=tag.name).exists())
+        self.assertFalse(
+            Tag.objects.filter(
+                user=self.user,
+                name=tag.name
+            ).exists()
+        )
 
     def test_updating_tags_successful(self):
         """Test updating tags successful"""
