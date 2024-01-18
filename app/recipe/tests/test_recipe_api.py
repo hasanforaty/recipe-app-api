@@ -7,7 +7,10 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
-from core.models import Recipe
+from core.models import (
+    Recipe,
+    Tag
+)
 from recipe.serializers import RecipeSerializer
 from recipe.serializers import RecipeDetailSerializer
 
@@ -178,3 +181,43 @@ class PrivateRecipeApiTest(TestCase):
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
         self.assertTrue(Recipe.objects.filter(id=recipe.id).exists())
+
+    def test_recipe_with_new_tags(self):
+        """Test creating a new recipe with new Tags"""
+        payload = {
+            'title': 'new recipe title',
+            'description': 'new recipe description',
+            'link': 'https://example.com/2recipe.pdf',
+            'time_minutes': 10,
+            'price': Decimal('2.50'),
+            'tags': [
+                {'name': 'python'},
+                {'name': 'cheese'},
+            ]
+        }
+        res = self.client.post(RECIPE_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data['id'])
+        # self.assertEqual(recipe.tags.count(), 2)
+        for tag in payload['tags']:
+            self.assertIn(tag, recipe.tags.all())
+
+    def test_create_recipe_with_existing_tags(self):
+        """Test creating a recipe with existing tags"""
+        tag_indian = Tag.objects.create(user=self.user, name='Indian')
+        payload = {
+            'title': 'thai praw',
+            'time_minutes': 60,
+            'price': Decimal('4.50'),
+            'tags': [
+                {'name': tag_indian.name},
+                {'name': "Breakfast"}
+            ]
+        }
+        res = self.client.post(RECIPE_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipes = Recipe.objects.get(user=self.user)
+        self.assertEqual(recipes.count(), 1)
+        recipe = recipes.first()
+        self.assertEqual(recipe.tags.count(), 2)
+        self.assertIn(tag_indian, recipe.tags.all())
