@@ -24,12 +24,27 @@ class TagSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for Recipe"""
-    tags = TagSerializer(many=True, required=False, read_only=False)
-    ingredients = IngredientSerializer(many=True, required=False, read_only=False)
+    tags = TagSerializer(
+        many=True,
+        required=False,
+        read_only=False,
+    )
+    ingredients = IngredientSerializer(
+        many=True,
+        required=False,
+        read_only=False,
+    )
 
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags', 'ingredients']
+        fields = [
+            'id',
+            'title',
+            'time_minutes',
+            'price', 'link',
+            'tags',
+            'ingredients'
+        ]
         read_only_fields = ['id', ]
 
     def _get_or_create_tags(self, tags, recipe, auth_user):
@@ -45,7 +60,12 @@ class RecipeSerializer(serializers.ModelSerializer):
     def _get_or_create_ingredients(self, ingredients, recipe, auth_user):
         """Handle getting or creating ingredients """
         for ingredient in ingredients:
-            ingredient_obj, created = Ingredient.objects.get_or_create(user=auth_user, **ingredient)
+            ingredient_obj, created = (
+                Ingredient.objects.get_or_create(
+                    user=auth_user,
+                    **ingredient
+                )
+            )
             recipe.ingredients.add(ingredient_obj)
 
     def create(self, validated_data):
@@ -57,7 +77,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         # add user to Recipe
         recipe = Recipe.objects.create(**validated_data, user=auth_user)
         self._get_or_create_tags(tags, recipe, auth_user=auth_user)
-        self._get_or_create_ingredients(ingredients, recipe, auth_user=auth_user)
+        self._get_or_create_ingredients(
+            ingredients, recipe,
+            auth_user=auth_user
+        )
 
         return recipe
 

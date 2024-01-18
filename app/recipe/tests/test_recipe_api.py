@@ -298,9 +298,6 @@ class PrivateRecipeApiTest(TestCase):
         self.assertIn(ingredient, recipe.ingredients.all())
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-
-
-
     def test_updating_recipe_with_new_ingredients(self):
         """Test updating recipe with new ingredients"""
         payloads = {
