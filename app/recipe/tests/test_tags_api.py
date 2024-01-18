@@ -13,6 +13,11 @@ from recipe.serializers import TagSerializer
 TAGS_URL = reverse('recipe:tag-list')
 
 
+def tag_detail_url(tag_id):
+    """Return tag detail url"""
+    return reverse('recipe:tag-detail', args=[tag_id])
+
+
 def create_user(email='user@example.com', password='testPass'):
     """Create a sample user"""
     return get_user_model().objects.create_user(email=email, password=password)
@@ -67,3 +72,40 @@ class PrivateTagsApiTest(TestCase):
         serializer = TagSerializer(test_case, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_tag_successful(self):
+        """Test creating tags successful"""
+        payload = {'name': 'Fruity'}
+        res = self.client.post(TAGS_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        exists = Tag.objects.filter(name=payload['name']).exists()
+        self.assertTrue(exists)
+
+    def test_updating_tags_successful(self):
+        """Test updating tags successful"""
+        payload = {'name': 'Goad Food'}
+        tag = create_tag(self.user, **payload)
+        new_name = 'Good Food'
+        res = self.client.patch(tag_detail_url(tag.id), {'name': new_name})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertFalse(Tag.objects.filter(name=payload['name']).exists())
+        self.assertTrue(Tag.objects.filter(name=new_name).exists())
+
+    def test_updating_user_of_tags_unsuccessful(self):
+        """Test updating user of tags unsuccessful"""
+        tag = create_tag(self.user, name='Green')
+        other_user = create_user('other@example.com', 'password')
+        payload = {'user': other_user}
+        res = self.client.patch(tag_detail_url(tag.id), payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(Tag.objects.filter(user=self.user, name=tag.name).exists())
+        self.assertFalse(Tag.objects.filter(user=other_user, name=tag.name).exists())
+
+    def test_delete_tag(self):
+        """Test deleting a Tag"""
+        tag = create_tag(self.user, name='Red')
+        res = self.client.delete(tag_detail_url(tag.id))
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Tag.objects.filter(user=self.user, name=tag.name).exists())
+
