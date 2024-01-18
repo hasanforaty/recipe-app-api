@@ -68,7 +68,3 @@ class TagViewSet(mixins.ListModelMixin,
     def get_queryset(self):
         """Retrieve recipes for authenticated user """
         return self.queryset.filter(user=self.request.user).order_by('-name')
-
-    def perform_create(self, serializer):
-        """Create a new Tag for current User"""
-        serializer.save(user=self.request.user)

@@ -10,14 +10,14 @@ class TagSerializer(serializers.ModelSerializer):
     """Serializer for Tag """
 
     class Meta:
-        fields = ['name', 'id']
-        read_only_fields = ['id']
         model = Tag
+        fields = ['id', 'name', ]
+        read_only_fields = ['id']
 
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for Recipe"""
-    tags = TagSerializer(many=True, required=False)
+    tags = TagSerializer(many=True, required=False, read_only=False)
 
     class Meta:
         model = Recipe
@@ -26,10 +26,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create a new recipe instance"""
-        r_tags = validated_data.pop('tags', [])
+        tags = validated_data.pop('tags', [])
         recipe = Recipe.objects.create(**validated_data)
         auth_user = self.context['request'].user
-        for tag in r_tags:
+        for tag in tags:
             tag_obj, created = Tag.objects.get_or_create(
                 user=auth_user,
                 **tag,
