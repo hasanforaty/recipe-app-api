@@ -4,7 +4,7 @@ Serializers for Recipe
 
 from rest_framework import serializers
 from core.models import Recipe, Tag, Ingredient
-from rest_framework.decorators import action
+
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -129,4 +129,3 @@ class RecipeImageSerializer(serializers.ModelSerializer):
     #     recipe.image = image
     #     recipe.save()
     #     return recipe
-
