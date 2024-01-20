@@ -107,4 +107,24 @@ class RecipeDetailSerializer(RecipeSerializer):
     """Serializer for recipe detail view"""
 
     class Meta(RecipeSerializer.Meta):
-        fields = RecipeSerializer.Meta.fields + ['description']
+        fields = RecipeSerializer.Meta.fields + ['description', 'image']
+
+
+class RecipeImageSerializer(serializers.ModelSerializer):
+    """Serializer for Uploading images to recipes """
+
+    class Meta:
+        model = Recipe
+        fields = ['id', 'image']
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'image': {'required': True}
+        }
+
+    # @action(methods=['post'], detail=True, url_path='upload-image')
+    # def create(self, validated_data):
+    #     image = validated_data.pop('image', None)
+    #     recipe = Recipe.objects.get(pk=validated_data.get('id'))
+    #     recipe.image = image
+    #     recipe.save()
+    #     return recipe
