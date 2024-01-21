@@ -6,8 +6,10 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from django.test import TestCase
+from decimal import Decimal
 
-from core.models import Tag
+
+from core.models import Tag,Recipe
 from recipe.serializers import TagSerializer
 
 TAGS_URL = reverse('recipe:tag-list')
@@ -125,3 +127,50 @@ class PrivateTagsApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         tag.refresh_from_db()
         self.assertTrue(tag.name == new_name)
+
+    def test_filter_tag_assigned_to_recipes(self):
+        tag1 = Tag.objects.create(user=self.user, name='Breakfast')
+        tag2 = Tag.objects.create(user=self.user, name='Lunch')
+        defaults = {
+            'title': 'sample recipe',
+            "time_minutes": 22,
+            "price": Decimal('5.25'),
+            'description': 'sample description',
+            'link': 'https://example.com/recipe.pdf',
+        }
+        recipe1 = Recipe.objects.create(user=self.user, **defaults)
+        recipe1.tags.add(tag1)
+
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+        s1 = TagSerializer(tag1)
+        s2 = TagSerializer(tag2)
+
+        self.assertIn(s1.data, res.data)
+        self.assertNotIn(s2.data, res.data)
+
+    def test_filtered_tags_unique(self):
+        """Test filtered tags return a unique list"""
+        tag = Tag.objects.create(user=self.user, name='Breakfeast')
+        Tag.objects.create(user=self.user, name='Lunch')
+        default1 = {
+            'title': 'sample recipe',
+            "time_minutes": 22,
+            "price": Decimal('5.25'),
+            'description': 'sample description',
+            'link': 'https://example.com/recipe.pdf',
+        }
+        recipe1 = Recipe.objects.create(user=self.user, **default1)
+        default2 = {
+            'title': 'sample recipe2',
+            "time_minutes": 22,
+            "price": Decimal('5.25'),
+            'description': 'sample description2',
+            'link': 'https://example.com/recipe.pdf',
+        }
+        recipe2 = Recipe.objects.create(user=self.user, **default2)
+        recipe2.tags.add(tag)
+        recipe1.tags.add(tag)
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+        self.assertEqual(len(res.data), 1)
+
+
