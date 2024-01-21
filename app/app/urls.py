@@ -23,7 +23,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(
-        'api/schema',
+        'api/schema/',
         SpectacularAPIView.as_view(),
         name='api-schema'
     ),
