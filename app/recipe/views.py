@@ -109,6 +109,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
 #     def perform_create(self, serializer):
 #         """Create a new Tag for current User"""
 #         serializer.save(user=self.request.user)
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='assigned_only',
+                type=OpenApiTypes.INT,
+                enum=[0, 1],
+                description='if 1, only assigned tag / ingredient  will be returned'
+            )
+        ]
+    )
+)
 class BaseRecipeAttrViewSet(mixins.ListModelMixin,
                             mixins.UpdateModelMixin,
                             mixins.DestroyModelMixin,
